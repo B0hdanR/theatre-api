@@ -26,8 +26,8 @@ MIDDLEWARE += [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK.update({
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
-}
+})
