@@ -27,6 +27,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("__debug__/", include("debug_toolbar.urls")),
     path("api/v1/theatre/", include("theatre.urls", namespace="theatre")),
+    path("api/v1/user/", include("user.urls", namespace="user")),
     path("api/doc/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/doc/swagger/",
