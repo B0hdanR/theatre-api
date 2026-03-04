@@ -1,6 +1,7 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 
+from theatre.filters import PlayFilter
 from theatre.models import (
     TheatreHall,
     Actor,
@@ -14,8 +15,10 @@ from theatre.serializers import (
     ActorSerializer,
     GenreSerializer,
     PlaySerializer,
+    PlayDetailSerializer,
+    PlayListSerializer,
     PerformanceSerializer,
-    ReservationSerializer
+    ReservationSerializer,
 )
 
 
@@ -34,9 +37,31 @@ class ActorViewSet(viewsets.ModelViewSet):
     serializer_class = ActorSerializer
 
 
+@extend_schema(
+    tags=["Plays"],
+)
 class PlayViewSet(viewsets.ModelViewSet):
+    """
+    PlayViewSet for Play model.
+    Filtering, searching, and ordering can be used
+    """
     queryset = Play.objects.prefetch_related("genres", "actors")
     serializer_class = PlaySerializer
+    filterset_class = PlayFilter
+    search_fields = ["title", "genres__name", "actors__first_name", "actors__last_name", "description"]
+    ordering_fields = ["title"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PlayListSerializer
+
+        if self.action == "retrieve":
+            return PlayDetailSerializer
+
+        return PlaySerializer
+
+    def get_queryset(self):
+        return super().get_queryset().distinct()
 
 
 class PerformanceViewSet(viewsets.ModelViewSet):
