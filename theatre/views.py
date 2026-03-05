@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
 
-from theatre.filters import PlayFilter
+from theatre.filters import PlayFilter, PerformanceFilter
 from theatre.models import (
     TheatreHall,
     Actor,
@@ -177,6 +177,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     """
     queryset = Performance.objects.select_related("play", "theatre_hall")
     serializer_class = PerformanceSerializer
+    filterset_class = PerformanceFilter
     search_fields = ["play__title", "theatre_hall__name"]
     ordering_fields = ["show_time"]
 
