@@ -1,3 +1,4 @@
+from django.db.models import Count, F
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -22,6 +23,7 @@ from theatre.serializers import (
     PlayListSerializer,
     PerformanceSerializer,
     ReservationSerializer,
+    PerformanceListSerializer,
 )
 
 
@@ -34,7 +36,7 @@ from theatre.serializers import (
             type=OpenApiTypes.STR,
             required=False,
             description="Which field to use when ordering the results.",
-            enum=["name", "-name" ]
+            enum=["name", "-name"]
         ),
         OpenApiParameter(
             "search",
@@ -120,7 +122,8 @@ class ActorViewSet(viewsets.ModelViewSet):
         ),
         OpenApiParameter(
             "search",
-            description="Search by actor's first or last name, genre name, play title or description",
+            description="Search by actor's first or last name, "
+                        "genre name, play title or description",
         )
     ]
 )
@@ -175,11 +178,26 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     """
     PerformanceViewSet for Performance model.
     """
-    queryset = Performance.objects.select_related("play", "theatre_hall")
+    queryset = (
+        Performance.objects.
+        select_related("play", "theatre_hall")
+        .annotate(
+            tickets_available = (
+                F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+                - Count("tickets")
+            )
+        )
+    )
     serializer_class = PerformanceSerializer
     filterset_class = PerformanceFilter
     search_fields = ["play__title", "theatre_hall__name"]
     ordering_fields = ["show_time"]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return PerformanceListSerializer
+
+        return PerformanceSerializer
 
 
 @extend_schema(
