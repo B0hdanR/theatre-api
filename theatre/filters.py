@@ -3,7 +3,10 @@ import django_filters
 from theatre.models import Play, Performance
 
 
-class CommaSeparatedNumberFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+class CommaSeparatedNumberFilter(
+    django_filters.BaseInFilter,
+    django_filters.NumberFilter
+):
     pass
 
 
