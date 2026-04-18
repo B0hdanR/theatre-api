@@ -77,7 +77,6 @@ class GenreViewSet(viewsets.ModelViewSet):
     """
     GenreViewSet for Genre model.
     """
-
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     search_fields = ["name"]
