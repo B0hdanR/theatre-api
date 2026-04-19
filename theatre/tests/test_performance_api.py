@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from theatre.models import Performance, Play, TheatreHall, Ticket, Reservation
-from theatre.serializers import PerformanceSerializer, PerformanceListSerializer, PerformanceDetailSerializer
+from theatre.serializers import PerformanceListSerializer, PerformanceDetailSerializer
 
 PERFORMANCE_URL = reverse("theatre:performance-list")
 
