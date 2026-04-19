@@ -4,6 +4,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import IsAuthenticated
 
 from theatre.filters import PlayFilter, PerformanceFilter
 from theatre.models import (
@@ -228,6 +229,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
         "tickets__performance__play", "tickets__performance__theatre_hall"
     )
     serializer_class = ReservationSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         OrderingFilter,

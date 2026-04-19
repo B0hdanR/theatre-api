@@ -1,6 +1,6 @@
 from django.db import transaction
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from theatre.models import (
     TheatreHall,
@@ -84,6 +84,19 @@ class PerformanceListSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        try:
+            Ticket.validate_ticket(
+                attrs["row"],
+                attrs["seat"],
+                attrs["performance"].theatre_hall,
+                DjangoValidationError
+            )
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.message_dict)
+
+        return attrs
+
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "performance")
@@ -125,6 +138,21 @@ class ReservationSerializer(serializers.ModelSerializer):
                 Ticket.objects.create(reservation=reservation, **ticket)
 
             return reservation
+
+    def validate(self, attrs):
+        tickets = attrs.get("tickets")
+
+        taken = set()
+        for ticket in tickets:
+            key = (ticket["row"], ticket["seat"], ticket["performance"])
+
+            if key in taken:
+                raise serializers.ValidationError(
+                    "Ticket with same row and seat already exists"
+                )
+            taken.add(key)
+
+        return attrs
 
 
 class ReservationDetailSerializer(ReservationSerializer):
