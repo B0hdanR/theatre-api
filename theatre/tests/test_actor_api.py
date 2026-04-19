@@ -79,6 +79,9 @@ class AuthenticatedActorAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data["results"][0]["first_name"], "Bart")
 
+    def test_actor_full_name(self):
+        actor = sample_actor(first_name="Bart", last_name="Nolan")
+        self.assertEqual(actor.full_name, "Bart Nolan")
 
 class AdminActorAPITests(TestCase):
     def setUp(self):
