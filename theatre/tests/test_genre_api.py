@@ -1,5 +1,3 @@
-from re import search
-
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -74,7 +72,7 @@ class AuthenticatedGenreAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn(serializer.data, res.data["results"])
 
-    def test_ordeering_genre(self):
+    def test_ordering_genre(self):
         sample_genre(name="Drama")
         sample_genre()
 
@@ -84,7 +82,7 @@ class AuthenticatedGenreAPITests(TestCase):
         self.assertEqual(res.data["results"][0]["name"], "Comedy")
 
 
-class AdminMovieAPITests(TestCase):
+class AdminGenreAPITests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
