@@ -179,16 +179,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     """
     PerformanceViewSet for Performance model.
     """
-    queryset = (
-        Performance.objects.
-        select_related("play", "theatre_hall")
-        .annotate(
-            tickets_available = (
-                F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
-                - Count("tickets")
-            )
-        )
-    )
+    queryset = Performance.objects.all()
     serializer_class = PerformanceSerializer
     filterset_class = PerformanceFilter
     search_fields = ["play__title", "theatre_hall__name"]
@@ -201,6 +192,19 @@ class PerformanceViewSet(viewsets.ModelViewSet):
             return PerformanceDetailSerializer
 
         return PerformanceSerializer
+
+    def get_queryset(self):
+        queryset = (
+            Performance.objects
+            .select_related("play", "theatre_hall")
+            .annotate(
+                tickets_available=(
+                        F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+                        - Count("tickets", distinct=True)
+                )
+            )
+        )
+        return queryset
 
 
 @extend_schema(
@@ -231,7 +235,8 @@ class ReservationViewSet(viewsets.ModelViewSet):
     ordering_fields = ["created_at"]
 
     def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user)
+        queryset = super().get_queryset()
+        return queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         if self.action == "retrieve":
